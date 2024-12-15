@@ -1,0 +1,94 @@
+
+## <summary>policy for at_spi2_registryd</summary>
+
+########################################
+## <summary>
+##	Execute at_spi2_registryd_exec_t in the at_spi2_registryd domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`at_spi2_registryd_domtrans',`
+	gen_require(`
+		type at_spi2_registryd_t, at_spi2_registryd_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, at_spi2_registryd_exec_t, at_spi2_registryd_t)
+')
+
+######################################
+## <summary>
+##	Execute at_spi2_registryd in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`at_spi2_registryd_exec',`
+	gen_require(`
+		type at_spi2_registryd_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, at_spi2_registryd_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute at_spi2_registryd in the at_spi2_registryd domain, and
+##	allow the specified role the at_spi2_registryd domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed the at_spi2_registryd domain.
+##	</summary>
+## </param>
+#
+interface(`at_spi2_registryd_run',`
+	gen_require(`
+		type at_spi2_registryd_t;
+		attribute_role at_spi2_registryd_roles;
+	')
+
+	at_spi2_registryd_domtrans($1)
+	roleattribute $2 at_spi2_registryd_roles;
+')
+
+########################################
+## <summary>
+##	Role access for at_spi2_registryd
+## </summary>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+## <param name="domain">
+##	<summary>
+##	User domain for the role
+##	</summary>
+## </param>
+#
+interface(`at_spi2_registryd_role',`
+	gen_require(`
+		type at_spi2_registryd_t;
+	')
+
+	at_spi2_registryd_run($2, $4)
+	at_spi2_registryd_domtrans($3)
+
+	optional_policy(`
+		systemd_user_app_status($1, at_spi2_registryd_t)
+	')
+')

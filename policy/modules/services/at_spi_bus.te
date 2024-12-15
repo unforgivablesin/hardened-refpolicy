@@ -1,0 +1,209 @@
+policy_module(at_spi_bus)
+
+require {
+	role staff_r;
+	type staff_t;
+	type staff_application_exec_domain;
+	type at_spi2_registryd_exec_t;
+	type bin_t;
+	type dbusd_exec_t;
+	type gnome_xdg_config_t;
+	type home_root_t;
+	type portal_gtk_t;
+	type proc_t;
+	type security_t;
+	type session_dbusd_runtime_t;
+	type staff_dbusd_t;
+	type staff_systemd_t;
+	type staff_t;
+	type sysctl_kernel_t;
+	type systemd_logind_runtime_t;
+	type systemd_userdbd_runtime_t;
+	type user_home_dir_t;
+	type user_runtime_root_t;
+	type user_runtime_t;
+	type user_tmp_t;
+	type usr_t;
+	type xdg_config_t;
+	type xdg_data_t;
+	type var_lib_t;
+	type bwrap_t;
+	type portal_gnome_t;
+	class dbus { send_msg acquire_svc };
+}
+
+########################################
+#
+# Declarations
+#
+
+attribute_role at_spi_bus_roles;
+roleattribute system_r at_spi_bus_roles;
+
+type at_spi_bus_t;
+type at_spi_bus_exec_t;
+application_domain(at_spi_bus_t, at_spi_bus_exec_t)
+role at_spi_bus_roles types at_spi_bus_t;
+at_spi_bus_role(staff_r, staff_t, staff_application_exec_domain, staff_r)
+
+########################################
+#
+# at_spi_bus local policy
+#
+
+#============= at_spi_bus_t ==============
+allow at_spi_bus_t at_spi2_registryd_exec_t:file { execute execute_no_trans map open read };
+allow at_spi_bus_t at_spi_bus_t:dbus { acquire_svc send_msg };
+allow at_spi_bus_t bin_t:dir search;
+allow at_spi_bus_t dbusd_exec_t:file { execute execute_no_trans map open read };
+allow at_spi_bus_t gnome_xdg_config_t:file { getattr map open read };
+allow at_spi_bus_t gnome_xdg_config_t:dir search;
+allow at_spi_bus_t home_root_t:dir search;
+
+allow at_spi_bus_t proc_t:filesystem getattr;
+allow at_spi_bus_t security_t:dir read;
+allow at_spi_bus_t security_t:file { map write };
+allow at_spi_bus_t security_t:security compute_av;
+allow at_spi_bus_t self:fifo_file manage_fifo_file_perms;
+allow at_spi_bus_t self:netlink_selinux_socket { bind create read };
+allow at_spi_bus_t self:process { getcap signal_perms };
+allow at_spi_bus_t self:unix_stream_socket { connectto create_stream_socket_perms };
+
+allow at_spi_bus_t session_dbusd_runtime_t:sock_file write;
+
+allow at_spi_bus_t staff_dbusd_t:unix_stream_socket { getattr read write };
+allow at_spi_bus_t staff_dbusd_t:dbus { acquire_svc send_msg };
+
+allow at_spi_bus_t staff_t:dir search;
+allow at_spi_bus_t staff_t:file { open read };
+allow at_spi_bus_t staff_t:dbus { send_msg };
+
+allow at_spi_bus_t staff_systemd_t:unix_stream_socket { getattr read write };
+
+allow at_spi_bus_t sysctl_kernel_t:dir search;
+allow at_spi_bus_t sysctl_kernel_t:file { open read };
+
+allow at_spi_bus_t systemd_logind_runtime_t:dir search;
+allow at_spi_bus_t systemd_logind_runtime_t:file { getattr open read };
+allow at_spi_bus_t systemd_userdbd_runtime_t:dir { getattr open read search };
+allow at_spi_bus_t systemd_userdbd_runtime_t:sock_file write;
+
+allow at_spi_bus_t user_home_dir_t:dir search;
+
+allow at_spi_bus_t user_runtime_root_t:dir search;
+allow at_spi_bus_t user_runtime_t:dir { add_name create search write };
+allow at_spi_bus_t user_runtime_t:dir remove_name;
+allow at_spi_bus_t user_runtime_t:sock_file { create setattr unlink write };
+
+allow at_spi_bus_t user_tmp_t:dir { getattr search };
+allow at_spi_bus_t user_tmp_t:file { map open read write };
+
+allow at_spi_bus_t usr_t:dir { read watch };
+allow at_spi_bus_t usr_t:file { getattr map open read };
+
+allow at_spi_bus_t xdg_config_t:dir search;
+allow at_spi_bus_t xdg_data_t:dir search;
+
+allow at_spi_bus_t etc_t:file map;
+allow at_spi_bus_t staff_dbusd_t:unix_stream_socket connectto;
+allow at_spi_bus_t bwrap_t:dbus send_msg;
+allow at_spi_bus_t portal_gnome_t:dbus send_msg;
+allow at_spi_bus_t user_runtime_t:dir getattr;
+allow at_spi_bus_t user_runtime_t:file { map open read write };
+
+search_dirs_pattern(at_spi_bus_t, var_lib_t, var_lib_t)
+
+optional {
+	require {
+		type gjs_console_t;
+	}
+
+	allow at_spi_bus_t gjs_console_t:dbus { send_msg };
+	search_dirs_pattern(at_spi_bus_t, gjs_console_t, gjs_console_t)
+	read_files_pattern(at_spi_bus_t, gjs_console_t, gjs_console_t)
+}
+
+optional {
+	require {
+		type portal_gtk_t;
+	}
+
+	search_dirs_pattern(at_spi_bus_t, portal_gtk_t, portal_gtk_t)
+	read_files_pattern(at_spi_bus_t, portal_gtk_t, portal_gtk_t)
+	allow at_spi_bus_t portal_gtk_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type gsd_media_keys_t;
+	}
+
+	search_dirs_pattern(at_spi_bus_t, gsd_media_keys_t, gsd_media_keys_t)
+	read_files_pattern(at_spi_bus_t, gsd_media_keys_t, gsd_media_keys_t)
+	allow at_spi_bus_t gsd_media_keys_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type gsd_power_t;
+	}
+
+	search_dirs_pattern(at_spi_bus_t, gsd_power_t, gsd_power_t)
+	read_files_pattern(at_spi_bus_t, gsd_power_t, gsd_power_t)
+	allow at_spi_bus_t gsd_power_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type gsd_keyboard_t;
+	}
+
+	search_dirs_pattern(at_spi_bus_t, gsd_keyboard_t, gsd_keyboard_t)
+	read_files_pattern(at_spi_bus_t, gsd_keyboard_t, gsd_keyboard_t)
+	allow at_spi_bus_t gsd_keyboard_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type gnome_session_binary_t;
+	}
+	search_dirs_pattern(at_spi_bus_t, gnome_session_binary_t, gnome_session_binary_t)
+	read_files_pattern(at_spi_bus_t, gnome_session_binary_t, gnome_session_binary_t)
+	allow at_spi_bus_t gnome_session_binary_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type gsd_xsettings_t;
+	}
+	search_dirs_pattern(at_spi_bus_t, gsd_xsettings_t, gsd_xsettings_t)
+	read_files_pattern(at_spi_bus_t, gsd_xsettings_t, gsd_xsettings_t)
+	allow at_spi_bus_t gsd_xsettings_t:dbus { send_msg };
+}
+
+optional {
+	require {
+		type bwrap_t;
+	}
+
+	allow at_spi_bus_t bwrap_t:dir search;
+	search_dirs_pattern(at_spi_bus_t, bwrap_t, bwrap_t)
+	read_files_pattern(at_spi_bus_t, bwrap_t, bwrap_t)
+}
+
+optional {
+	require {
+		type qbittorrent_t;
+	}
+
+	search_dirs_pattern(at_spi_bus_t, qbittorrent_t, qbittorrent_t)
+	read_files_pattern(at_spi_bus_t, qbittorrent_t, qbittorrent_t)
+}
+
+domain_use_interactive_fds(at_spi_bus_t)
+
+files_read_etc_files(at_spi_bus_t)
+
+logging_send_syslog_msg(at_spi_bus_t)
+
+miscfiles_read_localization(at_spi_bus_t)

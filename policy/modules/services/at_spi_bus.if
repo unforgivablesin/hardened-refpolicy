@@ -1,0 +1,94 @@
+
+## <summary>policy for at_spi_bus</summary>
+
+########################################
+## <summary>
+##	Execute at_spi_bus_exec_t in the at_spi_bus domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`at_spi_bus_domtrans',`
+	gen_require(`
+		type at_spi_bus_t, at_spi_bus_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, at_spi_bus_exec_t, at_spi_bus_t)
+')
+
+######################################
+## <summary>
+##	Execute at_spi_bus in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`at_spi_bus_exec',`
+	gen_require(`
+		type at_spi_bus_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, at_spi_bus_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute at_spi_bus in the at_spi_bus domain, and
+##	allow the specified role the at_spi_bus domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed the at_spi_bus domain.
+##	</summary>
+## </param>
+#
+interface(`at_spi_bus_run',`
+	gen_require(`
+		type at_spi_bus_t;
+		attribute_role at_spi_bus_roles;
+	')
+
+	at_spi_bus_domtrans($1)
+	roleattribute $2 at_spi_bus_roles;
+')
+
+########################################
+## <summary>
+##	Role access for at_spi_bus
+## </summary>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+## <param name="domain">
+##	<summary>
+##	User domain for the role
+##	</summary>
+## </param>
+#
+interface(`at_spi_bus_role',`
+	gen_require(`
+		type at_spi_bus_t;
+	')
+
+	at_spi_bus_run($2, $4)
+	at_spi_bus_domtrans($3)
+
+	optional_policy(`
+		systemd_user_app_status($1, at_spi_bus_t)
+	')
+')
