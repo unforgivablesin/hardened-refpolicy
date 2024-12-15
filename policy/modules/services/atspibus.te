@@ -1,4 +1,4 @@
-policy_module(at_spi_bus)
+policy_module(atspibus)
 
 require {
 	role staff_r;

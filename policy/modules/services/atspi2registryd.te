@@ -1,4 +1,4 @@
-policy_module(at_spi2_registryd, 1.0.0)
+policy_module(atspi2registryd)
 
 require {
 	type staff_t;
