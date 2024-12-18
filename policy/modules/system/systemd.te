@@ -671,6 +671,19 @@ optional_policy(`
 # systemd-homed policy
 #
 
+miscfiles_read_generic_certs(systemd_homed_t)
+
+#allow systemd_homed_t cgroup_t:file { getattr open read write };
+#allow systemd_homed_t etc_runtime_t:file { open read };
+#allow systemd_homed_t locale_t:dir search;
+#allow systemd_homed_t locale_t:file { getattr map open read };
+#allow systemd_homed_t self:process getcap;
+#allow systemd_homed_t systemd_homed_runtime_t:fifo_file { create open read write };
+#allow systemd_homed_t systemd_homed_storage_t:file write;
+#allow systemd_homed_t systemd_homework_t:fd use;
+#allow systemd_homed_t user_home_dir_t:dir { getattr open read };
+#allow systemd_homed_t var_t:dir read;
+
 dontaudit systemd_homed_t self:capability { sys_admin sys_resource };
 allow systemd_homed_t self:netlink_kobject_uevent_socket create_socket_perms;
 
@@ -731,6 +744,30 @@ optional_policy(`
 #
 # systemd-homework policy
 #
+
+miscfiles_read_generic_certs(systemd_homework_t)
+files_read_etc_runtime_files(systemd_homework_t)
+
+#allow systemd_homework_t fsadm_run_t:dir { add_name search write };
+#allow systemd_homework_t fsadm_run_t:file { create lock open read };
+#allow systemd_homework_t home_root_t:dir mounton;
+#allow systemd_homework_t init_t:key write;
+#allow systemd_homework_t locale_t:dir search;
+#allow systemd_homework_t locale_t:file { getattr map open read };
+#allow systemd_homework_t lvm_runtime_t:dir { add_name open read remove_name search write };
+#allow systemd_homework_t lvm_runtime_t:file { create getattr lock open read unlink write };
+#allow systemd_homework_t nsfs_t:file { open read };
+#allow systemd_homework_t self:cap_userns { sys_admin sys_ptrace };
+#allow systemd_homework_t self:capability { dac_read_search setfcap setgid setuid };
+#allow systemd_homework_t self:process { getcap sigkill };
+#allow systemd_homework_t self:user_namespace create;
+#allow systemd_homework_t sysctl_fs_t:dir search;
+#allow systemd_homework_t sysctl_fs_t:file { getattr ioctl open read };
+#allow systemd_homework_t systemd_homed_runtime_t:sock_file write;
+#allow systemd_homework_t systemd_homed_t:unix_dgram_socket sendto;
+#allow systemd_homework_t unlabeled_t:dir { mounton search };
+#allow systemd_homework_t user_home_dir_t:dir { getattr mounton open read search };
+#allow systemd_homework_t user_home_dir_t:file { getattr open read };
 
 allow systemd_homework_t self:capability { chown fowner fsetid sys_admin };
 dontaudit systemd_homework_t self:capability sys_resource;
